@@ -1,0 +1,12 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=include-code-files.lua --to=native sample.md | {{DIFF}} expected.native -
+
+expected-native:
+    {{PANDOC}} --lua-filter=include-code-files.lua --output expected.native sample.md

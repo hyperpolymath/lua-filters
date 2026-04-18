@@ -1,0 +1,19 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=author-info-blocks.lua --standalone --to=native sample.md | {{DIFF}} expected.native -
+
+expected-native:
+    @{{PANDOC}} --lua-filter=author-info-blocks.lua --standalone --output expected.native sample.md
+
+sample-pdf:
+    @{{PANDOC}} --lua-filter=author-info-blocks.lua --output sample.pdf sample.md
+
+sample-png: sample-pdf
+    @# Crude PDF conversion, remove page number, then trim to the title block.
+    @convert -density 300 sample.pdf -shave 0%x15% -trim -border 5% sample.png

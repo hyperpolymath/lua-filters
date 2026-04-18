@@ -1,0 +1,18 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=abstract-to-meta.lua --standalone --to=markdown sample1.md | {{DIFF}} expected1.md -
+    @{{PANDOC}} --lua-filter=abstract-to-meta.lua --standalone --to=markdown sample2.md | {{DIFF}} expected2.md -
+
+expected: expected-1 expected-2
+
+expected-1:
+    {{PANDOC}} --lua-filter=abstract-to-meta.lua --standalone --output expected1.md sample1.md
+
+expected-2:
+    {{PANDOC}} --lua-filter=abstract-to-meta.lua --standalone --output expected2.md sample2.md

@@ -1,0 +1,40 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+
+default: all
+
+all: sample-beamer-pdf sample-latex-pdf sample-html
+
+sample-beamer-tex:
+    {{PANDOC}} -s -t beamer --no-highlight --lua-filter=minted.lua sample.md > sample_beamer.tex
+
+sample-beamer-pdf: sample-beamer-tex
+    latexmk -pdf -shell-escape -jobname=sample_beamer sample_beamer
+
+sample-latex-tex:
+    {{PANDOC}} -s -t latex --no-highlight --lua-filter=minted.lua sample.md > sample_latex.tex
+
+sample-latex-pdf: sample-latex-tex
+    latexmk -pdf -shell-escape -jobname=sample_latex sample_latex
+
+sample-html:
+    {{PANDOC}} -s -t html5 --lua-filter=minted.lua sample.md > sample.html
+
+clean:
+    latexmk -c sample_beamer >/dev/null 2>&1 || true
+    rm -f sample_beamer.{nav,snm,vrb}
+    rm -rf _minted-sample_beamer/
+    latexmk -c sample_latex >/dev/null 2>&1 || true
+    rm -rf _minted-sample_latex/
+
+realclean: clean
+    rm -f sample_beamer.{tex,pdf}
+    rm -f sample_latex.{tex,pdf}
+    rm -f sample.html
+
+lint:
+    flake8 --max-line-length=80 run_minted_tests.py background_color.py
+
+test:
+    ./run_minted_tests.py

@@ -1,0 +1,12 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --mathml --lua-filter=math2svg.lua -M math2svg_font='Gyre-Pagella' --to=html sample.yaml sample.md | {{DIFF}} expected.html -
+
+expected:
+    {{PANDOC}} --mathml --lua-filter=math2svg.lua -M math2svg_tex2svg='/usr/local/bin/tex2svg' -M math2svg_font='Gyre-Pagella' --output=expected.html sample.yaml sample.md

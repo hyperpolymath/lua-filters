@@ -1,0 +1,20 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test: test-default test-no-citeproc test-refs-name test-section-level
+
+test-default:
+    @{{PANDOC}} sample.md -t native -M bibliography=bibliography.bib --citeproc --lua-filter=section-refs.lua | {{DIFF}} expected_default.native -
+
+test-no-citeproc:
+    @{{PANDOC}} sample.md -t native --lua-filter=section-refs.lua | {{DIFF}} expected_no_citeproc.native -
+
+test-refs-name:
+    @{{PANDOC}} sample.md -t native -M bibliography=bibliography.bib -M reference-section-title="Works Cited" --lua-filter=section-refs.lua | {{DIFF}} expected_refs_name.native -
+
+test-section-level:
+    @{{PANDOC}} sample.md -t native -M bibliography=bibliography.bib -M reference-section-title="Works Cited" -M section-refs-level=2 --lua-filter=section-refs.lua | {{DIFF}} expected_section_level.native -

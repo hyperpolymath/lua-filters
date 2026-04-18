@@ -1,0 +1,9 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=mhchem.lua test.txt -o test.docx
+    @rm -f test.native

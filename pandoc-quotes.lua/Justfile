@@ -1,0 +1,36 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+prepare-tmp:
+    @mkdir -p test/tmp
+    @rm -f test/tmp/*
+
+test-noop: prepare-tmp
+    @{{PANDOC}} --lua-filter ./pandoc-quotes.lua -f markdown-smart -t html -o test/tmp/test-noop.out test/docs/test-noop.md
+    @{{DIFF}} test/tmp/test-noop.out test/norms/test-noop.out
+
+test-simple: prepare-tmp
+    @{{PANDOC}} --lua-filter ./pandoc-quotes.lua -t html -o test/tmp/test-simple.out test/docs/test-simple.md
+    @{{DIFF}} test/tmp/test-simple.out test/norms/test-simple.out
+
+test-lookup-simple: prepare-tmp
+    @{{PANDOC}} --lua-filter ./pandoc-quotes.lua -t html -o test/tmp/test-lookup-simple.out test/docs/test-lookup-simple.md
+    @{{DIFF}} test/tmp/test-lookup-simple.out test/norms/test-lookup-simple.out
+
+test-lookup-void-country: prepare-tmp
+    @{{PANDOC}} --lua-filter ./pandoc-quotes.lua -t html -o test/tmp/test-lookup-void-country.out test/docs/test-lookup-void-country.md
+    @{{DIFF}} test/tmp/test-lookup-void-country.out test/norms/test-lookup-void-country.out
+
+test-lookup-mapping: prepare-tmp
+    @{{PANDOC}} --lua-filter ./pandoc-quotes.lua -t html -o test/tmp/test-lookup-mapping.out test/docs/test-lookup-mapping.md
+    @{{DIFF}} test/tmp/test-lookup-mapping.out test/norms/test-lookup-mapping.out
+
+test-lookup-no-fallback: prepare-tmp
+    @{{PANDOC}} --lua-filter ./pandoc-quotes.lua -t html -o test/tmp/test-lookup-no-fallback.out test/docs/test-lookup-no-fallback.md
+    @{{DIFF}} test/tmp/test-lookup-no-fallback.out test/norms/test-lookup-no-fallback.out
+
+test: test-noop test-simple test-lookup-simple test-lookup-void-country test-lookup-mapping test-lookup-no-fallback

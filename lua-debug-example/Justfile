@@ -1,0 +1,8 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{DIFF}} expected.html expected.html

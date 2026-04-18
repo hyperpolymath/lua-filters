@@ -1,0 +1,12 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=bibexport.lua sample.md > /dev/null
+    @{{DIFF}} bibexport.aux expected.bibexport.aux
+    @{{DIFF}} bibexport.bib expected.bibexport.bib
+    @rm -f bibexport.aux bibexport.bib

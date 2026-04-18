@@ -1,0 +1,11 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=latex-hyphen.lua --output=output.tex sample.md
+    @{{DIFF}} expected.tex output.tex
+    @rm -f output.tex

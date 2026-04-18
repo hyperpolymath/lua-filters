@@ -1,0 +1,17 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test: test-asciidoc test-html test-md
+
+test-asciidoc:
+    @{{PANDOC}} --lua-filter=pagebreak.lua sample.md --to asciidoc | {{DIFF}} expected.adoc -
+
+test-html:
+    @{{PANDOC}} --lua-filter=pagebreak.lua sample.md | {{DIFF}} expected.html -
+
+test-md:
+    @{{PANDOC}} -t ms --lua-filter=pagebreak.lua sample.md | {{DIFF}} expected.ms -

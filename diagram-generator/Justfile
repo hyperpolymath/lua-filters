@@ -1,0 +1,14 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+
+default: test
+
+test: clean sample-html
+
+sample-html:
+    @{{PANDOC}} --self-contained --lua-filter=diagram-generator.lua --metadata=pythonPath:"python3" --metadata=title:"README" --output=sample.html sample.md
+
+clean:
+    @rm -f sample.html
+    @rm -rf tmp-latex

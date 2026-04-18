@@ -1,0 +1,21 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=short-captions.lua README.md -w latex | {{DIFF}} expected-1.tex -
+
+crossref:
+    @echo testing short-captions.lua after pandoc-crossref
+    @{{PANDOC}} -F pandoc-crossref --lua-filter=short-captions.lua README.md -w latex | {{DIFF}} expected-2.tex -
+    @echo testing short-captions.lua before pandoc-crossref
+    @{{PANDOC}} --lua-filter=short-captions.lua -F pandoc-crossref README.md -w latex | {{DIFF}} expected-2.tex -
+
+readme:
+    @{{PANDOC}} -s -F pandoc-crossref --lua-filter=short-captions.lua README.md -o README.pdf
+
+latex:
+    @{{PANDOC}} -s -F pandoc-crossref --lua-filter=short-captions.lua README.md -o README.tex

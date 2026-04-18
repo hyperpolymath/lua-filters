@@ -1,0 +1,12 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+
+default: test
+
+test: sample-pdf
+    @{{PANDOC}} --to=latex --lua-filter=scrlttr2.lua -s sample.md | sh expected-strings.sh
+    @rm -f sample.pdf
+
+sample-pdf:
+    @{{PANDOC}} --lua-filter=scrlttr2.lua --output=sample.pdf sample.md

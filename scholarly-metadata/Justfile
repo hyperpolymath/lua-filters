@@ -1,0 +1,12 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=scholarly-metadata.lua --standalone --to=markdown sample.md | {{DIFF}} expected.md -
+
+expected-md:
+    {{PANDOC}} --lua-filter=scholarly-metadata.lua --standalone --output expected.md sample.md

@@ -1,0 +1,20 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test: test-latex test-html
+
+test-html:
+    @{{PANDOC}} -s --lua-filter first-line-indent.lua --to=html sample.md | {{DIFF}} expected.html -
+
+test-latex:
+    @{{PANDOC}} -s --lua-filter first-line-indent.lua --to=latex sample.md | {{DIFF}} expected.tex -
+
+expected-html:
+    {{PANDOC}} -s --lua-filter first-line-indent.lua --output expected.html sample.md
+
+expected-tex:
+    {{PANDOC}} -s --lua-filter first-line-indent.lua --output expected.tex sample.md

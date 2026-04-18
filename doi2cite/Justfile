@@ -1,0 +1,23 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+DIFF := env_var_or_default("DIFF", "diff --strip-trailing-cr -u")
+
+default: test
+
+test:
+    @{{PANDOC}} --lua-filter=doi2cite.lua --wrap=preserve --output=output.md sample1.md
+    @{{DIFF}} expected1.md output.md
+    @rm -f output.md
+
+expected-1-md:
+    {{PANDOC}} --lua-filter=doi2cite.lua --wrap=preserve --output expected1.md sample1.md
+
+expected-1-pdf:
+    {{PANDOC}} --lua-filter=doi2cite.lua --filter=pandoc-crossref --citeproc --csl=sample1.csl --output expected1.pdf sample1.md
+
+expected-2-md:
+    {{PANDOC}} --lua-filter=doi2cite.lua --wrap=preserve --output expected2.md sample2.md
+
+clean:
+    @rm -f expected1.md expected2.md expected1.pdf

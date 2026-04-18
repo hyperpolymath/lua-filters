@@ -1,0 +1,23 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+PANDOC := env_var_or_default("PANDOC", "pandoc")
+
+default: test
+
+test:
+    @{{PANDOC}} -s --lua-filter=table-short-captions.lua -t latex sample.md | sh test-table-short-captions.sh
+
+test-with-crossref:
+    @{{PANDOC}} -s --lua-filter=table-short-captions.lua -F pandoc-crossref -t latex sample.md | sh test-table-short-captions-crossref.sh
+
+readme-pdf:
+    @{{PANDOC}} --lua-filter=table-short-captions.lua -F pandoc-crossref README.md -o README.pdf
+
+sample-tex:
+    @{{PANDOC}} -s --lua-filter=table-short-captions.lua -F pandoc-crossref -t latex sample.md -o sample.tex
+
+sample-pdf:
+    @{{PANDOC}} -s --lua-filter=table-short-captions.lua -F pandoc-crossref -t latex sample.md -o sample.pdf
+
+clean:
+    rm -fv *.aux *.dvi *.fdb_latexmk *.fls *.log *.lot *.ps *.pdf sample.tex
